@@ -258,25 +258,34 @@ void MX_FREERTOS_Init(void) {
 void ultrasonic(void *argument)
 {
   /* USER CODE BEGIN ultrasonic */
-	uint32_t currentTime = HAL_GetTick();
-	uint32_t triggerTime = 0;
-
+	uint32_t lastTriggerTime = 0;
 
   /* Infinite loop */
-  for(;;)
-  {
-	  if(currentTime - triggerTime >= 60){
-		  triggerRightUltrasonic();
-		  triggerForwardUltrasonic();
-		  triggerLeftUltrasonic();
-		  triggerTime = currentTime;
-	  }
+    for(;;)
+    {
+        uint32_t currentTime = HAL_GetTick();  // 매 루프마다 업데이트
 
-	  printf("Right : %d cm \n", distance[0]);
-	  printf("Forward : %d cm \n", distance[1]);
-	  printf("Left : %d cm \n", distance[2]);
-    osDelay(1);
-  }
+        if(currentTime - lastTriggerTime >= 60)
+        {
+            triggerRightUltrasonic();
+            osDelay(10);  // 측정 완료 대기
+
+            triggerForwardUltrasonic();
+            osDelay(10);
+
+            triggerLeftUltrasonic();
+            osDelay(10);
+
+            lastTriggerTime = currentTime;
+
+            // 측정 후 출력
+            printf("Right : %d cm\n", distance[0]);
+            printf("Forward : %d cm\n", distance[1]);
+            printf("Left : %d cm\n", distance[2]);
+        }
+
+        osDelay(1);
+    }
   /* USER CODE END ultrasonic */
 }
 
